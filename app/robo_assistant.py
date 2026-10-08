@@ -1,4 +1,5 @@
 import os
+import sys
 
 from PyQt6.QtCore import QEasingCurve, QPoint, Qt, QVariantAnimation
 from PyQt6.QtGui import QPainter
@@ -36,6 +37,11 @@ class RoboAssistant(QWidget):
             | Qt.WindowType.WindowStaysOnTopHint
             | Qt.WindowType.Tool
         )
+        
+        # for MAC OS
+        if sys.platform == "darwin":
+            self.setAttribute(Qt.WidgetAttribute.WA_MacAlwaysShowToolWindow, True)
+        
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.resize(self.window_config.width, self.window_config.height)
 

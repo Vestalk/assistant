@@ -25,7 +25,7 @@ class FacePainter:
         painter.drawRoundedRect(0, 0, width, height, 9 * scale, 9 * scale)
 
         eye_width = 18 * scale
-        base_eye_height = 20 * scale
+        base_eye_height = 25 * scale
         eye_y_base = height - 25 * scale
 
         left_center = QPoint(

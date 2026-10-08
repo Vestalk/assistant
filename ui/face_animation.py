@@ -69,8 +69,8 @@ class FaceAnimationController:
         if dist == 0:
             return
 
-        max_x = 6.0
-        max_y = 2.0
+        max_x = 8.0
+        max_y = 8.0
         target_x = (dx / max(dist, 300)) * max_x
         target_y = (dy / max(dist, 300)) * max_y
 
