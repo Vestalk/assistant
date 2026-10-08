@@ -4,6 +4,7 @@ import sys
 from PyQt6.QtCore import QEasingCurve, QPoint, Qt, QVariantAnimation
 from PyQt6.QtGui import QPainter
 from PyQt6.QtWidgets import QVBoxLayout, QWidget
+from PyQt6.QtCore import QTimer
 
 from config import AnimationConfig, AudioConfig, TimerConfig, WindowConfig
 from domain.timer import PomodoroTimer, TimerState
@@ -11,7 +12,7 @@ from services.audio_service import AudioService
 from ui.face_animation import FaceAnimationController
 from ui.face_painter import FacePainter
 from ui.face_state import FaceState
-from ui.timer_panel import TimerPanel
+from ui.top_panel import TopPanel
 
 
 class RoboAssistant(QWidget):
@@ -52,10 +53,6 @@ class RoboAssistant(QWidget):
         )
 
     def _create_services(self):
-        os.environ.setdefault(
-            "QT_LOGGING_RULES",
-            "qt.multimedia.ffmpeg=false;qt.accessibility.atspi=false",
-        )
         self.audio_service = AudioService(
             self.audio_config.VOLUME,
             self.audio_config.NOTIFICATION_FILE,
@@ -74,7 +71,7 @@ class RoboAssistant(QWidget):
         self.main_layout.setContentsMargins(0, round(4*s), 0, 0)
         self.main_layout.setSpacing(round(2*s))
 
-        self.timer_panel = TimerPanel(
+        self.timer_panel = TopPanel(
             self,
             s,
             self.timer_config.MIN_MINUTES,
@@ -107,7 +104,6 @@ class RoboAssistant(QWidget):
             self.animation_config,
         )
 
-        from PyQt6.QtCore import QTimer
         self.pomo_timer = QTimer(self)
         self.pomo_timer.timeout.connect(self._pomo_tick)
 

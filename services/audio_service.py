@@ -23,6 +23,10 @@ class AudioService:
     def player(self) -> QMediaPlayer:
         return self._player
 
+    def play_radio(self) -> None:
+        # todo
+        pass
+
     def play_notification(self) -> None:
         if self._player.mediaStatus() == QMediaPlayer.MediaStatus.NoMedia:
             return

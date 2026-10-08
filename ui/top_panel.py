@@ -10,7 +10,7 @@ from PyQt6.QtWidgets import (
 )
 
 
-class TimerPanel:
+class TopPanel:
     """Створення та стилізація панелі керування таймером."""
 
     def __init__(self, parent: QWidget, scale: float, min_minutes: int, max_minutes: int):
@@ -40,8 +40,8 @@ class TimerPanel:
         self.btn_settings = QPushButton("⚙", self.parent)
         self.btn_settings.setFixedSize(round(18 * s), round(18 * s))
         self.btn_settings.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.btn_settings.setStyleSheet(self._settings_style(s))
-
+        self.btn_settings.setStyleSheet(self._button_style(s))
+        
         timer_layout.addWidget(self.btn_control)
         timer_layout.addWidget(self.lbl_timer)
         timer_layout.addWidget(self.btn_settings)
@@ -64,12 +64,18 @@ class TimerPanel:
         self.input_minutes.setStyleSheet(self._input_style(s))
 
         self.btn_apply = QPushButton("OK", self.settings_widget)
-        self.btn_apply.setFixedSize(round(28*s), round(22*s))
+        self.btn_apply.setFixedSize(round(18*s), round(18*s))
         self.btn_apply.setCursor(Qt.CursorShape.PointingHandCursor)
         self.btn_apply.setStyleSheet(self._apply_style(s))
+        
+        self.btn_radio = QPushButton("♬", self.parent)
+        self.btn_radio.setFixedSize(round(18 * s), round(18 * s))
+        self.btn_radio.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.btn_radio.setStyleSheet(self._apply_style(s))
 
         settings_layout.addWidget(self.input_minutes)
         settings_layout.addWidget(self.btn_apply)
+        settings_layout.addWidget(self.btn_radio)
 
         self.settings_widget.setVisible(False)
         layout.addWidget(self.settings_widget)
@@ -83,25 +89,8 @@ class TimerPanel:
                 color: #00f0ff;
                 border: {max(1, round(s))}px solid #00f0ff;
                 border-radius: {round(4*s)}px;
-                font-size: {round(10*s)}px;
-                font-weight: bold;
-                padding-bottom: {round(s)}px;
-            }}
-            QPushButton:hover {{
-                background-color: #00f0ff;
-                color: #0a0c10;
-            }}
-        """
-
-    @staticmethod
-    def _settings_style(s):
-        return f"""
-            QPushButton {{
-                background-color: #0f172a;
-                color: #00f0ff;
-                border: {max(1, round(s))}px solid #00f0ff;
-                border-radius: {round(4*s)}px;
                 font-size: {round(11*s)}px;
+                font-weight: bold;
                 padding-bottom: {round(2*s)}px;
             }}
             QPushButton:hover {{
