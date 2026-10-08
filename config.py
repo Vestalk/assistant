@@ -47,4 +47,5 @@ class TimerConfig:
 @dataclass(frozen=True)
 class AudioConfig:
     VOLUME: float = 0.8
-    NOTIFICATION_FILE: str = "positive-notification.mp3"
+    # NOTIFICATION_FILE: str = "positive-notification.mp3"
+    NOTIFICATION_FILE: str = "mixkit.wav"

@@ -2,11 +2,6 @@ import math
 import os
 import sys
 
-# Приховуємо службові попередження Qt та FFmpeg
-os.environ["QT_LOGGING_RULES"] = (
-    "qt.multimedia.ffmpeg=false;qt.accessibility.atspi=false"
-)
-
 from PyQt6.QtCore import (
     QEasingCurve,
     QPoint,
