@@ -37,6 +37,20 @@ class FaceAnimationController:
 
     def update(self):
         self.state.talking = self.audio_service.is_playing()
+        self.state.singing = self.audio_service.is_radio_playing()
+
+        if self.state.singing:
+            target_mouth_opening = self.audio_service.get_radio_level()
+        elif self.state.talking:
+            target_mouth_opening = 0.65
+        else:
+            target_mouth_opening = 0.0
+
+        self.state.mouth_opening += (
+            target_mouth_opening - self.state.mouth_opening
+        ) * 0.4
+        if not self.state.singing and not self.state.talking and self.state.mouth_opening < 0.01:
+            self.state.mouth_opening = 0.0
 
         if self.state.smiling:
             self._center_eyes()

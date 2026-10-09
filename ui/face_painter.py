@@ -62,8 +62,15 @@ class FacePainter:
                 painter.setBrush(self.CYAN)
                 painter.drawRoundedRect(rect, 4 * scale, 4 * scale)
 
-        if state.talking:
-            self._draw_mouth(painter, left_center, right_center, eye_y_base, scale)
+        if state.talking or state.singing:
+            self._draw_mouth(
+                painter,
+                left_center,
+                right_center,
+                eye_y_base,
+                scale,
+                state.mouth_opening,
+            )
 
         if state.question_opacity > 0:
             self._draw_question_mark(painter, right_center, state.question_opacity, scale)
@@ -89,11 +96,11 @@ class FacePainter:
                             Qt.PenCapStyle.RoundCap))
         painter.drawPath(path)
 
-    def _draw_mouth(self, painter, left, right, eye_y_base, scale):
+    def _draw_mouth(self, painter, left, right, eye_y_base, scale, openness):
         center_x = (left.x() + right.x()) / 2
         mouth_y = eye_y_base + 3 * scale
         width = 24 * scale
-        height = 22 * scale
+        height = max(2 * scale, 22 * scale * openness)
 
         path = QPainterPath()
         path.moveTo(center_x - width / 2, mouth_y)

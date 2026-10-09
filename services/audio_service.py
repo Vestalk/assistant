@@ -1,8 +1,17 @@
+import math
 import os
+import struct
+import time
 from typing import Optional
 
 from PyQt6.QtCore import QUrl
-from PyQt6.QtMultimedia import QAudioOutput, QMediaPlayer
+from PyQt6.QtMultimedia import (
+    QAudioBuffer,
+    QAudioBufferOutput,
+    QAudioFormat,
+    QAudioOutput,
+    QMediaPlayer,
+)
 
 from resources import get_resource_path
 from services.radio_client import RadioBrowserClient
@@ -29,6 +38,13 @@ class AudioService:
         # Плеєр для онлайн-радіопотоку
         self._radio_player = QMediaPlayer()
         self._radio_player.setAudioOutput(self._radio_audio_output)
+        self._radio_buffer_output = QAudioBufferOutput(self._radio_player)
+        self._radio_buffer_output.audioBufferReceived.connect(
+            self._on_radio_audio_buffer
+        )
+        self._radio_player.setAudioBufferOutput(self._radio_buffer_output)
+        self._radio_level = 0.0
+        self._radio_level_updated_at = 0.0
         self._radio_browser_client = RadioBrowserClient()
         stations = self._radio_browser_client.get_stations_by_country()
         print(len(stations))
@@ -75,6 +91,8 @@ class AudioService:
         else:
             return False
 
+        self._radio_level = 0.0
+        self._radio_level_updated_at = 0.0
         self._radio_player.play()
         return True
 
@@ -118,6 +136,55 @@ class AudioService:
     def stop_radio(self) -> None:
         """Зупиняє програвання радіо."""
         self._radio_player.stop()
+        self._radio_level = 0.0
+        self._radio_level_updated_at = 0.0
+
+    def get_radio_level(self) -> float:
+        """Повертає згасаючий рівень гучності радіо в діапазоні 0..1."""
+        if not self._radio_level_updated_at:
+            return 0.0
+
+        age = time.monotonic() - self._radio_level_updated_at
+        freshness = max(0.0, 1.0 - age / 0.3)
+        return self._radio_level * freshness * self._radio_audio_output.volume()
+
+    def _on_radio_audio_buffer(self, buffer: QAudioBuffer) -> None:
+        if not buffer.isValid() or buffer.sampleCount() == 0:
+            return
+
+        sample_format = buffer.format().sampleFormat()
+        sample_formats = {
+            QAudioFormat.SampleFormat.Float: ("=f", 1.0),
+            QAudioFormat.SampleFormat.Int16: ("=h", 1 / 32768),
+            QAudioFormat.SampleFormat.Int32: ("=i", 1 / 2147483648),
+        }
+        raw_samples = buffer.constData().asstring(buffer.byteCount())
+
+        if sample_format == QAudioFormat.SampleFormat.UInt8:
+            samples = ((sample - 128) / 128 for sample in raw_samples)
+        else:
+            sample_format_info = sample_formats.get(sample_format)
+            if sample_format_info is None:
+                return
+            struct_format, scale = sample_format_info
+            samples = (
+                value * scale
+                for (value,) in struct.iter_unpack(struct_format, raw_samples)
+            )
+
+        sum_squares = 0.0
+        sample_count = 0
+        for sample in samples:
+            if math.isfinite(sample):
+                sum_squares += sample * sample
+                sample_count += 1
+
+        if not sample_count:
+            return
+
+        rms = math.sqrt(sum_squares / sample_count)
+        self._radio_level = min(1.0, max(0.0, rms - 0.01) * 4)
+        self._radio_level_updated_at = time.monotonic()
 
     def set_radio_volume(self, volume: float) -> None:
         """Змінює гучність радіо незалежно від сповіщень."""

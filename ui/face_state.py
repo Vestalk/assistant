@@ -7,6 +7,8 @@ class FaceState:
     blink_direction: int = 0
     smiling: bool = False
     talking: bool = False
+    singing: bool = False
+    mouth_opening: float = 0.0
     eye_offset_x: float = 0.0
     eye_offset_y: float = 0.0
     question_opacity: float = 0.0
