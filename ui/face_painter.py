@@ -100,7 +100,7 @@ class FacePainter:
         center_x = (left.x() + right.x()) / 2
         mouth_y = eye_y_base + 3 * scale
         width = 24 * scale
-        height = max(2 * scale, 22 * scale * openness)
+        height = max(2 * scale, 50 * scale * openness)
 
         path = QPainterPath()
         path.moveTo(center_x - width / 2, mouth_y)
