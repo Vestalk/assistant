@@ -1,74 +1,69 @@
-pip freeze > requirements.txt
-pip install -r requirements.txt
+# Robo Assistant
 
-# Robo Assistant — refactored
+Компактний настільний Pomodoro-асистент на PyQt6
+
+## Можливості
+
+- Таймер Pomodoro з налаштуванням тривалості.
+- Українські радіостанції з перемиканням, назвою та номером станції.
+- Звукові сповіщення таймера, незалежні від радіо.
+- Анімація обличчя з відстеженням курсора та реакцією на аудіо.
+
+Для отримання списку радіостанцій потрібен доступ до інтернету.
 
 ## Структура
 
 ```text
-robo_assistant/
-├── main.py
-├── config.py
-├── resources.py
-├── requirements.txt
-├── app/
-│   └── robo_assistant.py
-├── domain/
-│   └── timer.py
-├── services/
-│   └── audio_service.py
-└── ui/
-    ├── face_animation.py
-    ├── face_painter.py
-    ├── face_state.py
-    └── timer_panel.py
+main.py                     Точка входу
+config.py                   Налаштування вікна, таймера й аудіо
+resources.py                Пошук ресурсів, зокрема у збірці PyInstaller
+app/robo_assistant.py       Головний віджет і координація компонентів
+domain/timer.py             Логіка таймера Pomodoro
+services/audio_service.py   Сповіщення, радіо та аналіз гучності
+services/radio_client.py    Запити до Radio Browser API
+ui/top_panel.py             Панель таймера й керування радіо
+ui/face_animation.py        Анімація обличчя
+ui/face_painter.py          Малювання обличчя
+ui/face_state.py            Стан обличчя
 ```
 
-## Запуск
+## Встановлення та запуск
 
-Покладіть `positive-notification.mp3` поруч із `main.py`.
+Потрібен Python і `pip`. У корені проєкту створіть віртуальне середовище:
 
 ```bash
-pip install -r requirements.txt
+python -m venv .venv
+```
+
+Активуйте його:
+
+```powershell
+# Windows PowerShell
+.\.venv\Scripts\Activate.ps1
+```
+
+```bash
+# macOS / Linux
+source .venv/bin/activate
+```
+
+Встановіть залежності та запустіть асистента:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 python main.py
 ```
 
-## Зміна розміру
+Файл сповіщення `mixkit.wav` має лежати в корені проєкту; це поточний ресурс, заданий у `config.py`.
 
-Відкрийте `config.py`:
+## Керування
 
-```python
-@dataclass(frozen=True)
-class WindowConfig:
-    ...
-    SCALE: float = 1.0
-```
+- Кнопка таймера запускає, призупиняє або скидає таймер.
+- Кнопка налаштувань відкриває параметри таймера та радіо.
+- Кнопки радіо перемикають станції або вмикають/зупиняють відтворення.
+- Повзунок змінює гучність радіо окремо від гучності сповіщень.
 
-Наприклад:
+## Налаштування
 
-```python
-SCALE = 1.5
-```
-
-дасть приблизно `195x128`, а:
-
-```python
-SCALE = 2.0
-```
-
-дасть `260x170`.
-
-Тобто для звичайного масштабування не потрібно змінювати координати очей, розміри кнопок, шрифти тощо — вони масштабуються автоматично.
-
-## Чому так
-
-- `domain/timer.py` — бізнес-логіка Pomodoro без Qt.
-- `services/audio_service.py` — робота зі звуком.
-- `ui/face_painter.py` — тільки малювання.
-- `ui/face_animation.py` — тільки анімація.
-- `ui/timer_panel.py` — створення контролів таймера.
-- `app/robo_assistant.py` — координація компонентів.
-- `config.py` — конфігурація.
-- `main.py` — точка входу.
-
-При додаванні, наприклад, нового типу анімації краще додати окремий компонент у `ui`, а не збільшувати `RoboAssistant`.
+У `config.py` змінюються масштаб вікна (`WindowConfig.SCALE`), висота панелі налаштувань, початкова гучність і файл сповіщення. Розміри елементів інтерфейсу масштабуються разом із `SCALE`.
