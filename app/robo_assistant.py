@@ -45,6 +45,8 @@ class RoboAssistant(QWidget):
         
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.resize(self.window_config.width, self.window_config.height)
+        self.setFixedWidth(self.window_config.width)
+        self.setMinimumHeight(self.window_config.height)
 
         screen = self.screen().geometry()
         self.move(
@@ -80,12 +82,21 @@ class RoboAssistant(QWidget):
         self.timer_panel.build(
             self.main_layout,
             self.timer_config.DEFAULT_WORK_MINUTES,
+            self.audio_config.VOLUME,
+            self.audio_service.get_current_station_name(),
+            self.audio_service.get_station_position(),
         )
 
         self.timer_panel.btn_control.clicked.connect(self.on_timer_button_click)
         self.timer_panel.btn_settings.clicked.connect(self.toggle_settings)
         self.timer_panel.btn_apply.clicked.connect(self.apply_new_time)
         self.timer_panel.input_minutes.returnPressed.connect(self.apply_new_time)
+        self.timer_panel.btn_radio_previous.clicked.connect(self.play_previous_radio_station)
+        self.timer_panel.btn_radio_toggle.clicked.connect(self.toggle_radio)
+        self.timer_panel.btn_radio_next.clicked.connect(self.play_next_radio_station)
+        self.timer_panel.slider_radio_volume.valueChanged.connect(
+            lambda value: self.audio_service.set_radio_volume(value / 100)
+        )
 
         self.update_timer_label()
 
@@ -204,6 +215,39 @@ class RoboAssistant(QWidget):
             self.size_animation.finished.disconnect(self._hide_settings)
         except TypeError:
             pass
+
+    def toggle_radio(self):
+        button = self.timer_panel.btn_radio_toggle
+        if button.text() == "▶":
+            if self.audio_service.play_radio():
+                self._set_radio_playing_ui(True)
+                self._refresh_radio_station_name()
+        else:
+            self.audio_service.stop_radio()
+            self._set_radio_playing_ui(False)
+
+    def play_previous_radio_station(self):
+        if self.audio_service.play_previous_station() is not None:
+            self._set_radio_playing_ui(True)
+            self._refresh_radio_station_name()
+
+    def play_next_radio_station(self):
+        if self.audio_service.play_next_station() is not None:
+            self._set_radio_playing_ui(True)
+            self._refresh_radio_station_name()
+
+    def _refresh_radio_station_name(self):
+        self.timer_panel.set_radio_station_name(
+            self.audio_service.get_current_station_name()
+        )
+        self.timer_panel.set_radio_station_position(
+            *self.audio_service.get_station_position()
+        )
+
+    def _set_radio_playing_ui(self, is_playing: bool):
+        button = self.timer_panel.btn_radio_toggle
+        button.setText("■" if is_playing else "▶")
+        button.setToolTip("Зупинити радіо" if is_playing else "Увімкнути радіо")
 
     def _on_resize_animation(self, value):
         self.resize(self.window_config.width, int(value))

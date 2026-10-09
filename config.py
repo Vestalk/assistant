@@ -10,9 +10,9 @@ class WindowConfig:
 
     # ЗМІНЮЙТЕ ЛИШЕ ЦЕ ЗНАЧЕННЯ ДЛЯ МАСШТАБУ ВІКНА.
     # 1.0 = 130x85, 1.5 = 195x128, 2.0 = 260x170 тощо.
-    SCALE: float = 1.0
+    SCALE: float = 1.2
 
-    SETTINGS_HEIGHT: int = 30
+    SETTINGS_HEIGHT: int = 114
 
     @property
     def width(self) -> int:
