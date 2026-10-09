@@ -27,14 +27,16 @@ class FacePainter:
         eye_width = 18 * scale
         base_eye_height = 25 * scale
         eye_y_base = height - 25 * scale
+        eye_x = state.eye_offset_x + state.eye_dance_x * scale
+        eye_y = state.eye_offset_y + state.eye_dance_y * scale
 
         left_center = QPoint(
-            round(37 * scale + state.eye_offset_x),
-            round(eye_y_base + state.eye_offset_y),
+            round(37 * scale + eye_x),
+            round(eye_y_base + eye_y),
         )
         right_center = QPoint(
-            round(93 * scale + state.eye_offset_x),
-            round(eye_y_base + state.eye_offset_y),
+            round(93 * scale + eye_x),
+            round(eye_y_base + eye_y),
         )
 
         if state.smiling:

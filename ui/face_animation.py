@@ -1,3 +1,5 @@
+from math import sin
+
 from PyQt6.QtCore import QTimer
 from PyQt6.QtGui import QCursor
 
@@ -9,6 +11,7 @@ class FaceAnimationController:
         self.widget = widget
         self.audio_service = audio_service
         self.config = config
+        self._eye_dance_phase = 0.0
 
         self.animation_timer = QTimer(widget)
         self.animation_timer.timeout.connect(self.update)
@@ -38,6 +41,7 @@ class FaceAnimationController:
     def update(self):
         self.state.talking = self.audio_service.is_playing()
         self.state.singing = self.audio_service.is_radio_playing()
+        self._update_eye_dance()
 
         if self.state.singing:
             target_mouth_opening = self.audio_service.get_radio_level()
@@ -59,6 +63,19 @@ class FaceAnimationController:
             self._update_eyes()
 
         self.widget.update()
+
+    def _update_eye_dance(self):
+        if self.state.singing:
+            radio_level = self.audio_service.get_radio_level()
+            self._eye_dance_phase += 0.08 + 0.24 * radio_level
+            target_x = sin(self._eye_dance_phase) * 0.8 * radio_level
+            target_y = sin(self._eye_dance_phase * 2) * 1.2 * radio_level
+        else:
+            target_x = 0.0
+            target_y = 0.0
+
+        self.state.eye_dance_x += (target_x - self.state.eye_dance_x) * 0.3
+        self.state.eye_dance_y += (target_y - self.state.eye_dance_y) * 0.3
 
     def _update_blink(self):
         if self.state.blink_direction == 1:

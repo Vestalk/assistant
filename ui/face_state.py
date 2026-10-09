@@ -11,4 +11,6 @@ class FaceState:
     mouth_opening: float = 0.0
     eye_offset_x: float = 0.0
     eye_offset_y: float = 0.0
+    eye_dance_x: float = 0.0
+    eye_dance_y: float = 0.0
     question_opacity: float = 0.0
