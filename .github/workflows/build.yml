@@ -1,0 +1,72 @@
+name: Build RoboAssistant for Windows and macOS
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build executable
+        run: |
+          pyinstaller --clean --noconfirm --onefile --windowed --name RoboAssistant --add-data "mixkit.wav;." main.py
+          pyinstaller --clean --noconfirm --onefile --console --name RoboAssistant-debug --add-data "mixkit.wav;." main.py
+
+      - name: Upload executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: RoboAssistant-Windows
+          path: |
+            dist/RoboAssistant.exe
+            dist/RoboAssistant-debug.exe
+          if-no-files-found: error
+
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
+
+      - name: Build app
+        run: pyinstaller --clean --noconfirm --windowed --name RoboAssistant --add-data "mixkit.wav:." main.py
+
+      - name: Package app
+        run: ditto -c -k --sequesterRsrc --keepParent dist/RoboAssistant.app dist/RoboAssistant-macOS.zip
+
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        with:
+          name: RoboAssistant-macOS
+          path: dist/RoboAssistant-macOS.zip
+          if-no-files-found: error
